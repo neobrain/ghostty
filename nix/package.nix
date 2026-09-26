@@ -101,33 +101,36 @@ in
       "vim"
     ];
 
-    postInstall = ''
-      terminfo_src=${
-        if stdenv.hostPlatform.isDarwin
-        then ''"$out/Applications/Ghostty.app/Contents/Resources/terminfo"''
-        else "$out/share/terminfo"
-      }
+    postInstall =
+      ''
+        terminfo_src=${
+          if stdenv.hostPlatform.isDarwin
+          then ''"$out/Applications/Ghostty.app/Contents/Resources/terminfo"''
+          else "$out/share/terminfo"
+        }
 
-      mkdir -p "$out/nix-support"
+        mkdir -p "$out/nix-support"
 
-      mkdir -p "$terminfo/share"
-      mv "$terminfo_src" "$terminfo/share/terminfo"
-      ln -sf "$terminfo/share/terminfo" "$terminfo_src"
-      echo "$terminfo" >> "$out/nix-support/propagated-user-env-packages"
+        mkdir -p "$terminfo/share"
+        mv "$terminfo_src" "$terminfo/share/terminfo"
+        ln -sf "$terminfo/share/terminfo" "$terminfo_src"
+        echo "$terminfo" >> "$out/nix-support/propagated-user-env-packages"
 
-      mkdir -p "$shell_integration"
-      mv "$out/share/ghostty/shell-integration" "$shell_integration/shell-integration"
-      ln -sf "$shell_integration/shell-integration" "$out/share/ghostty/shell-integration"
-      echo "$shell_integration" >> "$out/nix-support/propagated-user-env-packages"
+        mkdir -p "$shell_integration"
+        mv "$out/share/ghostty/shell-integration" "$shell_integration/shell-integration"
+        ln -sf "$shell_integration/shell-integration" "$out/share/ghostty/shell-integration"
+        echo "$shell_integration" >> "$out/nix-support/propagated-user-env-packages"
 
-      mv $out/share/vim/vimfiles "$vim"
-      ln -sf "$vim" "$out/share/vim/vimfiles"
-      echo "$vim" >> "$out/nix-support/propagated-user-env-packages"
+        mv $out/share/vim/vimfiles "$vim"
+        ln -sf "$vim" "$out/share/vim/vimfiles"
+        echo "$vim" >> "$out/nix-support/propagated-user-env-packages"
 
-      echo "gst_all_1.gstreamer" >> "$out/nix-support/propagated-user-env-packages"
-      echo "gst_all_1.gst-plugins-base" >> "$out/nix-support/propagated-user-env-packages"
-      echo "gst_all_1.gst-plugins-good" >> "$out/nix-support/propagated-user-env-packages"
-    '';
+      ''
+      + lib.optionalString stdenv.hostPlatform.isLinux ''
+        echo "${pkgs.gst_all_1.gstreamer}" >> "$out/nix-support/propagated-user-env-packages"
+        echo "${pkgs.gst_all_1.gst-plugins-base}" >> "$out/nix-support/propagated-user-env-packages"
+        echo "${pkgs.gst_all_1.gst-plugins-good}" >> "$out/nix-support/propagated-user-env-packages"
+      '';
 
     meta = {
       homepage = "https://ghostty.org";
